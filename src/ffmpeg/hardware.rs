@@ -60,7 +60,22 @@ impl HardwareConfig {
             VideoEncoder::QuickSync =>
                 vec!["-c:v", "h264_qsv", "-preset", "veryfast", "-global_quality", "23"],
             VideoEncoder::VideoToolbox =>
-                vec!["-c:v", "h264_videotoolbox", "-b:v", "3000k", "-maxrate", "3000k"],
+                vec![
+                    "-c:v",
+                    "h264_videotoolbox",
+                    "-preset",
+                    "ultrafast",
+                    "-realtime",
+                    "1",
+                    "-threads",
+                    "auto",
+                    "-b:v",
+                    "2000k",
+                    "-maxrate",
+                    "2500k",
+                    "-bufsize",
+                    "1000k"
+                ],
             VideoEncoder::Software =>
                 vec!["-c:v", "libx264", "-preset", "ultrafast", "-tune", "zerolatency"],
         }
