@@ -70,11 +70,15 @@ impl HardwareConfig {
                     "-threads",
                     "auto",
                     "-b:v",
-                    "2000k",
+                    "1500k",
                     "-maxrate",
-                    "2500k",
+                    "2000k",
                     "-bufsize",
-                    "1000k"
+                    "4000k",
+                    "-vsync",
+                    "2",
+                    "-async",
+                    "1"
                 ],
             VideoEncoder::Software =>
                 vec!["-c:v", "libx264", "-preset", "ultrafast", "-tune", "zerolatency"],
