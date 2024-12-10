@@ -12,12 +12,12 @@ impl StreamServer {
     pub fn new(port: u16) -> Self {
         StreamServer {
             port,
-            addr: ([127, 0, 0, 1], port).into(),
+            addr: ([0, 0, 0, 0], port).into(),
         }
     }
 
     pub fn url(&self) -> String {
-        format!("http://localhost:{}/stream/output.m3u8", self.port)
+        format!("http://0.0.0.0:{}/stream/output.m3u8", self.port)
     }
 
     pub async fn start(&self) {
