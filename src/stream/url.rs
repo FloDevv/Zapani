@@ -1,5 +1,5 @@
 use warp::Filter;
-use std::net::SocketAddr;
+use std::{ fs, net::SocketAddr };
 
 use crate::stream::events::events;
 
@@ -21,7 +21,12 @@ impl StreamServer {
     }
 
     pub async fn start(&self) {
-        std::fs::create_dir_all("stream").unwrap();
+        if fs::metadata("stream").is_ok() {
+            fs::remove_dir_all("stream").expect("Failed to delete 'stream' directory");
+        }
+
+        // Recreate the "stream" folder
+        fs::create_dir_all("stream").expect("Failed to create 'stream' directory");
 
         let cors: warp::filters::cors::Builder = warp
             ::cors()

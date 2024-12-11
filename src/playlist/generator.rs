@@ -1,13 +1,14 @@
-// generator.rs
 use std::fs::File;
 use std::io::Write;
 use std::path::{ Path, PathBuf };
 use walkdir::WalkDir;
 
 use super::customrandom::customrandom;
+use super::filename::sanitize_filenames;
 
 pub fn create_playlist(sources: &[String], output_path: &str) -> std::io::Result<()> {
     let mut video_files: Vec<PathBuf> = scan_video_files(sources);
+    sanitize_filenames(&mut video_files)?;
     customrandom(&mut video_files);
     write_playlist_file(&video_files, output_path)
 }
@@ -26,6 +27,9 @@ fn scan_video_files(sources: &[String]) -> Vec<PathBuf> {
 }
 
 fn write_playlist_file(videos: &[PathBuf], output_path: &str) -> std::io::Result<()> {
+    if PathBuf::from(output_path).exists() {
+        std::fs::remove_file(output_path)?;
+    }
     let mut file: File = File::create(output_path)?;
     for video in videos {
         let path_str: String = video.to_str().unwrap().replace("\\", "\\\\");
