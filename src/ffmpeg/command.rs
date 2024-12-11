@@ -5,6 +5,8 @@ use super::hardware;
 pub fn create_ffmpeg_command(list_path: &Path) -> duct::Expression {
     let hw_config: hardware::HardwareConfig = hardware::get_hardware_config();
     let encoder_params: Vec<&str> = hw_config.get_ffmpeg_params();
+    let use_hardware: bool = hw_config.encoder != hardware::VideoEncoder::Software;
+
     let mut args: Vec<&str> = vec![
         "ffmpeg",
         "-stream_loop",
@@ -30,8 +32,6 @@ pub fn create_ffmpeg_command(list_path: &Path) -> duct::Expression {
         "main",
         "-preset",
         "medium",
-        "-tune",
-        "zerolatency",
         "-g",
         "48",
         "-sc_threshold",
@@ -43,9 +43,7 @@ pub fn create_ffmpeg_command(list_path: &Path) -> duct::Expression {
         "-bufsize",
         "5600k",
         "-c:a",
-        "aac",
-        "-b:a",
-        "128k",
+        "copy",
         "-ac",
         "2",
         "-f",
@@ -62,6 +60,15 @@ pub fn create_ffmpeg_command(list_path: &Path) -> duct::Expression {
         "stream/segment%d.ts",
         "stream/output.m3u8"
     ];
+
+    // Insert encoder parameters
     args.splice(20..20, encoder_params);
+
+    // Conditionally add '-tune zerolatency' if not using hardware encoder
+    if !use_hardware {
+        args.push("-tune");
+        args.push("zerolatency");
+    }
+
     cmd(args[0], &args[1..])
 }

@@ -1,5 +1,6 @@
 use std::process::Command;
 
+#[derive(PartialEq)]
 pub enum VideoEncoder {
     Nvenc,
     Amf,
@@ -55,7 +56,7 @@ impl HardwareConfig {
     pub fn get_ffmpeg_params(&self) -> Vec<&'static str> {
         match self.encoder {
             VideoEncoder::Nvenc =>
-                vec!["-c:v", "h264_nvenc", "-preset", "p4", "-rc", "vbr", "-cq", "24"],
+                vec!["-c:v", "h264_nvenc", "-preset", "p5", "-rc", "vbr", "-cq", "23"],
             VideoEncoder::Amf => vec!["-c:v", "h264_amf", "-quality", "balanced", "-rc", "vbr_lat"],
             VideoEncoder::QuickSync =>
                 vec!["-c:v", "h264_qsv", "-preset", "medium", "-global_quality", "23"],
@@ -63,12 +64,12 @@ impl HardwareConfig {
                 vec![
                     "-c:v",
                     "h264_videotoolbox",
+                    "-q:v",
+                    "23",
                     "-realtime",
                     "1",
                     "-threads",
-                    "auto",
-                    "-b:v",
-                    "2500k"
+                    "auto"
                 ],
             VideoEncoder::Software =>
                 vec!["-c:v", "libx264", "-preset", "medium", "-tune", "zerolatency"],
