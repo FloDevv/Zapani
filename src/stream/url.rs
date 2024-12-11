@@ -23,6 +23,12 @@ impl StreamServer {
     pub async fn start(&self) {
         std::fs::create_dir_all("stream").unwrap();
 
+        let cors: warp::filters::cors::Builder = warp
+            ::cors()
+            .allow_any_origin()
+            .allow_header("content-type")
+            .allow_methods(vec!["GET", "POST"]);
+
         let specific_route = warp
             ::path("stream")
             .and(warp::path("output.m3u8"))
@@ -35,7 +41,7 @@ impl StreamServer {
 
         let other_routes = warp::path("stream").and(warp::fs::dir("stream"));
 
-        let routes = specific_route.or(other_routes);
+        let routes = specific_route.or(other_routes).with(cors);
 
         println!("Stream URL: {}", self.url());
 

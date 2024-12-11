@@ -5,7 +5,7 @@ pub enum VideoEncoder {
     Amf,
     QuickSync,
     VideoToolbox,
-    Software, // Fallback
+    Software,
 }
 
 pub struct HardwareConfig {
@@ -55,33 +55,23 @@ impl HardwareConfig {
     pub fn get_ffmpeg_params(&self) -> Vec<&'static str> {
         match self.encoder {
             VideoEncoder::Nvenc =>
-                vec!["-c:v", "h264_nvenc", "-preset", "p1", "-rc", "cbr", "-zerolatency", "1"],
-            VideoEncoder::Amf => vec!["-c:v", "h264_amf", "-quality", "speed", "-rc", "cbr"],
+                vec!["-c:v", "h264_nvenc", "-preset", "p4", "-rc", "vbr", "-cq", "24"],
+            VideoEncoder::Amf => vec!["-c:v", "h264_amf", "-quality", "balanced", "-rc", "vbr_lat"],
             VideoEncoder::QuickSync =>
-                vec!["-c:v", "h264_qsv", "-preset", "veryfast", "-global_quality", "23"],
+                vec!["-c:v", "h264_qsv", "-preset", "medium", "-global_quality", "23"],
             VideoEncoder::VideoToolbox =>
                 vec![
                     "-c:v",
                     "h264_videotoolbox",
-                    "-preset",
-                    "ultrafast",
                     "-realtime",
                     "1",
                     "-threads",
                     "auto",
                     "-b:v",
-                    "1500k",
-                    "-maxrate",
-                    "2000k",
-                    "-bufsize",
-                    "4000k",
-                    "-vsync",
-                    "2",
-                    "-async",
-                    "1"
+                    "2500k"
                 ],
             VideoEncoder::Software =>
-                vec!["-c:v", "libx264", "-preset", "ultrafast", "-tune", "zerolatency"],
+                vec!["-c:v", "libx264", "-preset", "medium", "-tune", "zerolatency"],
         }
     }
 }

@@ -11,27 +11,31 @@ fn get_current_timestamp() -> i64 {
 }
 
 pub fn events() {
-    LAST_ACTIVITY.store(get_current_timestamp(), Ordering::SeqCst);
+    LAST_ACTIVITY.store(get_current_timestamp(), Ordering::Release);
 
-    if !CHECKING_THREAD.load(Ordering::SeqCst) {
-        CHECKING_THREAD.store(true, Ordering::SeqCst);
+    if !CHECKING_THREAD.load(Ordering::Acquire) {
+        CHECKING_THREAD.store(true, Ordering::Release);
         thread::spawn(|| {
+            let mut consecutive_idles: i32 = 0;
             loop {
-                let last: i64 = LAST_ACTIVITY.load(Ordering::SeqCst);
+                let last: i64 = LAST_ACTIVITY.load(Ordering::Acquire);
                 let current: i64 = get_current_timestamp();
 
-                // Check if no one is watching the stream
                 if current - last > 10 {
-                    idle();
-                    break;
+                    consecutive_idles += 1;
+                    if consecutive_idles >= 3 {
+                        // Wait for 3 consecutive idle checks
+                        idle();
+                        break;
+                    }
+                } else {
+                    consecutive_idles = 0;
                 }
 
-                thread::sleep(Duration::from_secs(5));
+                thread::sleep(Duration::from_secs(10));
             }
         });
     }
-
-    println!("Someone is watching the stream");
 }
 
 fn idle() {
