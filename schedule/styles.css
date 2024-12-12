@@ -1,0 +1,148 @@
+@import url("https://fonts.googleapis.com/css2?family=VT323&display=swap");
+
+body {
+  font-family: "VT323", monospace;
+  background-color: #000000;
+  background-image: linear-gradient(
+      0deg,
+      rgba(40, 40, 40, 0.3) 1px,
+      transparent 1px
+    ),
+    linear-gradient(90deg, rgba(40, 40, 40, 0.3) 1px, transparent 1px);
+  background-size: 20px 20px;
+  color: #ffffff;
+  margin: 0;
+  padding: 20px;
+  min-height: 100vh;
+}
+
+#currently {
+  font-size: 1.2em;
+  margin-bottom: 20px;
+  padding: 10px 10px;
+  background: #111111;
+  border: 1px solid #333;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+  position: relative;
+  letter-spacing: -0.5px;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#currently::before {
+  content: "> ";
+  color: #666;
+}
+
+#schedule {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+.day-column {
+  background: #111111;
+  border: 1px solid #333;
+  padding: 10px;
+  min-width: 250px;
+}
+
+.day-column h3 {
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 0.9em;
+  color: #666;
+  border-bottom: 1px solid #333;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+}
+
+.video-item {
+  margin: 8px 0;
+  padding: 8px;
+  border-left: 2px solid #333;
+  font-size: 0.85em;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 15px;
+  padding: 10px;
+}
+
+.video-item:hover {
+  background: #1a1a1a;
+  border-left-color: #666;
+}
+
+.video-title {
+  color: #fff;
+  margin-bottom: 3px;
+  font-weight: bold;
+}
+
+.video-time {
+  color: #666;
+  font-size: 1em;
+}
+
+.time-switch {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 15px 0;
+  font-family: "VT323", monospace;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+  margin-right: 8px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #111;
+  transition: 0.3s;
+  border: 1px solid #333;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 4px;
+  bottom: 3px;
+  background-color: #666;
+  transition: 0.3s;
+}
+
+.switch input:checked + .slider {
+  background-color: #222;
+  border-color: #666;
+}
+
+.switch input:checked + .slider:before {
+  transform: translateX(26px);
+  background-color: #fff;
+}
+
+.switch:hover .slider {
+  border-color: #666;
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
+}
