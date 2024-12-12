@@ -16,7 +16,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config_str: String = fs::read_to_string("sources.json")?;
     let config: Config = serde_json::from_str(&config_str)?;
 
-    let list_path: &str = "videos.txt";
+    let list_path: &str = "video.json";
     playlist::create_playlist(&config.sources, list_path)?;
 
     let server_handle: tokio::task::JoinHandle<()> = tokio::spawn(async {

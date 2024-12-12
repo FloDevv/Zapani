@@ -1,46 +1,56 @@
 use std::fs::File;
-use std::io::Write;
-use std::path::{ Path, PathBuf };
-use walkdir::WalkDir;
+use std::path::PathBuf;
+use chrono::{ DateTime, Utc, Duration };
 
-use super::customrandom::customrandom;
-use super::filename::sanitize_filenames;
+use crate::playlist::{
+    video_entry::VideoEntry,
+    file_scanner::scan_video_files,
+    metadata::get_video_title,
+};
+use super::{
+    customrandom::customrandom,
+    filename::sanitize_filenames,
+    duration_manager::{ PlaylistDurationManager, get_video_duration },
+};
 
 pub fn create_playlist(sources: &[String], output_path: &str) -> std::io::Result<()> {
     let mut video_files: Vec<PathBuf> = scan_video_files(sources);
     sanitize_filenames(&mut video_files)?;
-    customrandom(&mut video_files);
-    write_playlist_file(&video_files, output_path)
+    let original_files: Vec<PathBuf> = video_files.clone();
+
+    let mut entries: Vec<VideoEntry> = Vec::new();
+    let mut current_time: DateTime<Utc> = Utc::now();
+    let mut duration_manager: PlaylistDurationManager = PlaylistDurationManager::new();
+
+    while duration_manager.needs_more_content() {
+        if video_files.is_empty() {
+            video_files = original_files.clone();
+            customrandom(&mut video_files);
+        }
+
+        if let Some(video) = video_files.pop() {
+            if let Some(duration) = get_video_duration(&video) {
+                let entry: VideoEntry = VideoEntry {
+                    path: video.to_str().unwrap().replace("\\", "\\\\"),
+                    title: get_video_title(&video),
+                    start_time: current_time,
+                    duration,
+                };
+                current_time = current_time + Duration::seconds(duration as i64);
+                duration_manager.add_duration(duration);
+                entries.push(entry);
+            }
+        }
+    }
+
+    write_playlist_file(&entries, output_path)
 }
 
-fn scan_video_files(sources: &[String]) -> Vec<PathBuf> {
-    sources
-        .iter()
-        .flat_map(|dir: &String| {
-            WalkDir::new(dir)
-                .into_iter()
-                .filter_map(|e: Result<walkdir::DirEntry, walkdir::Error>| e.ok())
-                .map(|e: walkdir::DirEntry| e.path().to_path_buf())
-                .filter(|path: &PathBuf| is_video_file(path))
-        })
-        .collect()
-}
-
-fn write_playlist_file(videos: &[PathBuf], output_path: &str) -> std::io::Result<()> {
+fn write_playlist_file(entries: &[VideoEntry], output_path: &str) -> std::io::Result<()> {
     if PathBuf::from(output_path).exists() {
         std::fs::remove_file(output_path)?;
     }
-    let mut file: File = File::create(output_path)?;
-    for video in videos {
-        let path_str: String = video.to_str().unwrap().replace("\\", "\\\\");
-        writeln!(file, "file '{}'", path_str)?;
-    }
+    let file: File = File::create(output_path)?;
+    serde_json::to_writer_pretty(file, &entries)?;
     Ok(())
-}
-
-fn is_video_file(path: &Path) -> bool {
-    match path.extension().and_then(|ext: &std::ffi::OsStr| ext.to_str()) {
-        Some(ext) => ["mp4", "mkv", "avi"].contains(&ext.to_lowercase().as_str()),
-        None => false,
-    }
 }
