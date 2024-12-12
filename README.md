@@ -26,10 +26,10 @@
   - Random playlist generation
   - Supports multiple video formats (MP4, MKV, AVI)
   - Continuous playback with loop functionality
+  - Real TV channel-like schedule system with 7-day programming
 
 ## 🚀 Coming Soon
 
 - Better random playlist generation like choose time of day to play specific shows
 - More settings for the user to configure
 - Add idle stream for eco-friendly (if you keep the program open but nobody is watching, no need to use resources)
-- Create a real schedule for the playlist like a TV channel (like a 7 days schedule)
