@@ -1,7 +1,7 @@
-use serde::Serialize;
+use serde::{ Deserialize, Serialize };
 use chrono::{ DateTime, Utc };
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 pub struct VideoEntry {
     pub path: String,
     pub title: String,

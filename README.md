@@ -9,6 +9,8 @@
 
 </div>
 
+## 🚧 WORK IN PROGRESS, not working yet !
+
 ## 📝 Overview
 
 **Zapani** is a high-performance Rust application that creates an m3u8 url from your local video files. This url can be use like on VLC or any other player that supports HLS protocol. It is designed to be the more lightweight and efficient.

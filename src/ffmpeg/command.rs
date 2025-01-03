@@ -1,8 +1,10 @@
 use duct::cmd;
 use std::path::Path;
+use crate::playlist::VideoEntry;
+
 use super::hardware;
 
-pub fn create_ffmpeg_command(list_path: &Path) -> duct::Expression {
+pub fn create_ffmpeg_command(concat_path: &Path) -> duct::Expression {
     let hw_config: hardware::HardwareConfig = hardware::get_hardware_config();
     let encoder_params: Vec<&str> = hw_config.get_ffmpeg_params();
     let use_hardware: bool = hw_config.encoder != hardware::VideoEncoder::Software;
@@ -21,11 +23,11 @@ pub fn create_ffmpeg_command(list_path: &Path) -> duct::Expression {
         "-safe",
         "0",
         "-i",
-        list_path.to_str().unwrap(),
+        concat_path.to_str().unwrap(),
         "-map",
-        "0:v", // Map first video stream
+        "0:v",
         "-map",
-        "0:a:0", // Map first audio stream
+        "0:a:0",
         "-profile:v",
         "main",
         "-preset",
@@ -49,7 +51,7 @@ pub fn create_ffmpeg_command(list_path: &Path) -> duct::Expression {
         "-ac",
         "2",
         "-metadata:s:a:0",
-        "language=fra", // Still set French language tag
+        "language=fra",
         "-max_muxing_queue_size",
         "1024",
         "-f",

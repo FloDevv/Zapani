@@ -13,7 +13,7 @@ use super::{
     duration_manager::{ PlaylistDurationManager, get_video_duration },
 };
 
-pub fn create_playlist(sources: &[String], output_path: &str) -> std::io::Result<()> {
+pub fn create_playlist(sources: &[String], output_path: &str) -> std::io::Result<Vec<VideoEntry>> {
     let mut video_files: Vec<PathBuf> = scan_video_files(sources);
     sanitize_filenames(&mut video_files)?;
     let original_files: Vec<PathBuf> = video_files.clone();
@@ -43,14 +43,25 @@ pub fn create_playlist(sources: &[String], output_path: &str) -> std::io::Result
         }
     }
 
-    write_playlist_file(&entries, output_path)
+    Ok(entries)
 }
 
-fn write_playlist_file(entries: &[VideoEntry], output_path: &str) -> std::io::Result<()> {
+pub fn write_playlist_file(entries: &[VideoEntry], output_path: &str) -> std::io::Result<()> {
     if PathBuf::from(output_path).exists() {
         std::fs::remove_file(output_path)?;
     }
     let file: File = File::create(output_path)?;
     serde_json::to_writer_pretty(file, &entries)?;
+    Ok(())
+}
+
+pub fn write_ffmpeg_concat_file(entries: &[VideoEntry], concat_path: &str) -> std::io::Result<()> {
+    use std::io::Write;
+    let mut file = File::create(concat_path)?;
+    writeln!(file, "ffconcat version 1.0")?;
+    for entry in entries {
+        writeln!(file, "file '{}'", entry.path.replace("\\\\", "\\"))?;
+        writeln!(file, "duration {}", entry.duration)?;
+    }
     Ok(())
 }

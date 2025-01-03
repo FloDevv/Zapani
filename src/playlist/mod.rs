@@ -5,5 +5,7 @@ mod video_entry;
 mod file_scanner;
 mod metadata;
 mod duration_manager;
-
 pub use generator::create_playlist;
+pub use video_entry::VideoEntry;
+pub use generator::write_playlist_file;
+pub use generator::write_ffmpeg_concat_file;

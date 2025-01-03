@@ -1,6 +1,5 @@
 use serde::Deserialize;
 use std::fs;
-use std::path::Path;
 use stream::StreamServer;
 mod ffmpeg;
 mod stream;
@@ -17,15 +16,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config: Config = serde_json::from_str(&config_str)?;
 
     let list_path: &str = "video.json";
-    playlist::create_playlist(&config.sources, list_path)?;
+    let entries: Vec<playlist::VideoEntry> = playlist::create_playlist(&config.sources, list_path)?;
+    playlist::write_playlist_file(&entries, list_path)?;
+
+    let concat_path: &str = "video.txt";
+    playlist::write_ffmpeg_concat_file(&entries, concat_path)?;
 
     let server_handle: tokio::task::JoinHandle<()> = tokio::spawn(async {
         let server: StreamServer = StreamServer::new(8080);
         server.start().await
     });
 
-    let ffmpeg_command: duct::Handle = ffmpeg
-        ::create_ffmpeg_command(Path::new(list_path))
+    let ffmpeg_command = ffmpeg
+        ::create_ffmpeg_command(std::path::Path::new(concat_path))
         .stdout_null()
         .stderr_to_stdout()
         .start()?;
